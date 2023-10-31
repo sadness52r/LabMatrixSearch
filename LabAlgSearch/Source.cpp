@@ -34,44 +34,47 @@ bool find_linear(int** arr, int M, int target) {
 	}
 	return false;
 }
-bool bin_search(int* arr, int target, int left, int right) {
-	int l = left, r = right;
+int bin_search(int* arr, int target, int left, int right) {
+	int l = left, r = right, mid = 0;
 	while (l <= r)
 	{
-		int mid = (l + r) / 2;
+		mid = (l + r) / 2;
 		if (arr[mid] > target)
 			r = mid - 1;
 		else if (arr[mid] < target)
 			l = mid + 1;
 		else
-			return true;
+			return mid;
 	}
-	return false;
+	return mid;
+}
+int exponential_search(int* arr, int target, int curCol) {
+	int step = 1;
+	for (; curCol >= 0; curCol -= step)
+	{
+		if (arr[curCol] <= target) {
+			curCol = bin_search(arr, target, curCol, curCol + step);
+			return curCol;
+		}	
+		step *= 2;
+	}
+	if (arr[0] <= target)
+		curCol = bin_search(arr, target, 0, curCol + step);
+	return curCol;
 }
 bool find_binary(int** arr, int M, int target) {
 	for (int row = 0; row < M; row++)
-		if (bin_search(arr[row], target, 0, N - 1))
+		if (arr[row][bin_search(arr[row], target, 0, N - 1)] == target)
 			return true;
 	return false;
 }
 bool find_exponential(int** arr, int M, int target) {
-	int col = N - 1, i = 0, r = N - 1, l = 0;
+	int n = N - 1;
 	for (int row = 0; row < M; row++)
 	{
-		while (col > -1)
-		{
-			if (arr[row][col] > target)
-				r = col;
-			else if (arr[row][col] < target)
-				l = col;
-			else
-				return true;
-			col -= pow(2, i);
-		}
-		if (bin_search(arr[row], target, l, r))
+		int index = exponential_search(arr[row], target, n);
+		if (index >= 0 && arr[row][index] == target)
 			return true;
-		else
-			l = 0, i = 0;
 	}
 	return false;
 }
@@ -88,13 +91,13 @@ int main() {
 		M = pow(2, x);
 		int target;
 		int** arr = generate_data1(M, &target);
-		find_linear(arr, M, target);
-		find_binary(arr, M, target);
-		find_exponential(arr, M, target);
+		std::cout << "Result from algorythm 1 (Data Generation 1): " << find_linear(arr, M, target) << std::endl;
+		std::cout << "Result from algorythm 2 (Data Generation 1): " << find_binary(arr, M, target) << std::endl;
+		std::cout << "Result from algorythm 3 (Data Generation 1): " << find_exponential(arr, M, target) << std::endl;
 		arr = generate_data2(M, &target);
-		find_linear(arr, M, target);
-		find_binary(arr, M, target);
-		find_exponential(arr, M, target);
+		std::cout << "Result from algorythm 1 (Data Generation 2): " << find_linear(arr, M, target) << std::endl;
+		std::cout << "Result from algorythm 2 (Data Generation 2): " << find_binary(arr, M, target) << std::endl;
+		std::cout << "Result from algorythm 3 (Data Generation 2): " << find_exponential(arr, M, target) << std::endl;
 
 		free_space(arr, M);
 	}
