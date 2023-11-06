@@ -1,4 +1,5 @@
 #include <iostream>
+#include <chrono>
 #define N 8192
 
 int** generate_data1(int M, int* target) {
@@ -78,6 +79,23 @@ bool find_exponential(int** arr, int M, int target) {
 	}
 	return false;
 }
+void print_data(int numGeneration, int** arr, int M, int target) {
+	auto start = std::chrono::steady_clock::now();
+	bool isFound = find_linear(arr, M, target);
+	auto end = std::chrono::steady_clock::now();
+
+	std::cout << "Result from algorythm 1 (Data Generation " << numGeneration << "): " << isFound << " Time: " << std::chrono::duration_cast<std::chrono::nanoseconds>(end - start).count() << std::endl;
+
+	start = std::chrono::steady_clock::now();
+	isFound = find_binary(arr, M, target);
+	end = std::chrono::steady_clock::now();
+	std::cout << "Result from algorythm 2 (Data Generation " << numGeneration << "): " << isFound << " Time: " << std::chrono::duration_cast<std::chrono::nanoseconds>(end - start).count() << std::endl;
+
+	start = std::chrono::steady_clock::now();
+	isFound = find_exponential(arr, M, target);
+	end = std::chrono::steady_clock::now();
+	std::cout << "Result from algorythm 3 (Data Generation " << numGeneration << "): " << isFound << " Time: " << std::chrono::duration_cast<std::chrono::nanoseconds>(end - start).count() << std::endl;
+}
 void free_space(int** arr, int M) {
 	for (int i = 0; i < M; i++)
 		delete[] arr[i];
@@ -91,14 +109,10 @@ int main() {
 		M = pow(2, x);
 		int target;
 		int** arr = generate_data1(M, &target);
-		std::cout << "Result from algorythm 1 (Data Generation 1): " << find_linear(arr, M, target) << std::endl;
-		std::cout << "Result from algorythm 2 (Data Generation 1): " << find_binary(arr, M, target) << std::endl;
-		std::cout << "Result from algorythm 3 (Data Generation 1): " << find_exponential(arr, M, target) << std::endl;
+		std::cout << "Size: " << N * M << std::endl;
+		print_data(1, arr, M, target);
 		arr = generate_data2(M, &target);
-		std::cout << "Result from algorythm 1 (Data Generation 2): " << find_linear(arr, M, target) << std::endl;
-		std::cout << "Result from algorythm 2 (Data Generation 2): " << find_binary(arr, M, target) << std::endl;
-		std::cout << "Result from algorythm 3 (Data Generation 2): " << find_exponential(arr, M, target) << std::endl;
-
+		print_data(2, arr, M, target);
 		free_space(arr, M);
 	}
 	return 0;
